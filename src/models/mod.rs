@@ -63,13 +63,30 @@ pub struct Particle {
     pub ttl: f64
 }
 
+impl Particle {
+    /// Create a particle with the given vector and time to live in seconds
+    pub fn new(vector: Vector, ttl: f64) -> Particle {
+        Particle { vector: vector, ttl: ttl }
+    }
+}
+
+/// Timers to handle creation of bullets, enemies and particles
+#[derive(Default)]
+pub struct Timers {
+    pub current_time: f64,
+    pub last_tail_particle: f64,
+    pub last_shoot: f64,
+    pub last_spawned_enemy: f64
+}
+
 /// A model that contains the other models and renders them
 pub struct World {
     pub player: Player,
     pub particles: Vec<Particle>,
     pub bullets: Vec<Bullet>,
     pub enemies: Vec<Enemy>,
-    pub size: Size
+    pub size: Size,
+    pub timers: Timers
 }
 
 impl World {
@@ -80,7 +97,8 @@ impl World {
             particles: vec![],
             bullets: vec![],
             enemies: vec![],
-            size: size
+            size: size,
+            timers: Timers::default()
         }
     }
 }

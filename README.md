@@ -1,6 +1,6 @@
 # What?
 
-A reimplementation of https://github.com/aochagavia/rocket a demo rust game, using the Elm architecture http://guide.elm-lang.org/architecture/index.html.
+A reorganization of https://github.com/aochagavia/rocket a demo rust game, using the Elm architecture http://guide.elm-lang.org/architecture/index.html.
 
 # Why?
 

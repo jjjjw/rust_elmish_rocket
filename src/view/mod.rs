@@ -1,6 +1,6 @@
-use graphics::{Context, Polygon, Transformed, clear};
+use graphics::{Context, Polygon, Ellipse, Transformed, clear};
 use opengl_graphics::GlGraphics;
-use models::{Player, World};
+use models::{Player, World, Particle};
 
 /// The player is drawn as the triangle below
 const POLYGON: &'static [[f64; 2]] = &[
@@ -15,6 +15,13 @@ pub mod color {
     pub const ORANGE: [f32; 4] = [1.0, 0.5, 0.0, 1.0];
     pub const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
     pub const VIOLET: [f32; 4] = [0.6, 0.0, 1.0, 1.0];
+}
+
+fn render_particle (particle: &Particle, c: &Context, gl: &mut GlGraphics) {
+    let radius = 5.0 * particle.ttl;
+    Ellipse::new(color::VIOLET).resolution(8).draw(
+        [particle.vector.position.x - radius, particle.vector.position.y - radius, radius * 2.0, radius * 2.0],
+        &c.draw_state, c.transform, gl);
 }
 
 fn render_player (player: &Player, ctx: &Context, gl: &mut GlGraphics) {
@@ -32,4 +39,9 @@ pub fn render_world (world: &World, ctx: &Context, gl: &mut GlGraphics) {
 
   // Render the player
   render_player(&world.player, ctx, gl);
+
+    // Render all the particles
+  for particle in &world.particles {
+    render_particle(&particle, ctx, gl);
+  }
 }

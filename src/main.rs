@@ -33,7 +33,7 @@ fn main() {
         .unwrap();
 
     window.set_ups(60);
-    window.set_max_fps(60);
+    window.set_max_fps(90);
 
     let mut gl = GlGraphics::new(opengl);
     let mut events = window.events();
