@@ -1,3 +1,7 @@
+/// A game entity, implements various components as traits
+}
+struct Entity;
+
 /// A `Position` represents a position in space
 #[derive(Clone, Default)]
 pub struct Position {
@@ -126,3 +130,5 @@ impl Game {
         }
     }
 }
+
+
