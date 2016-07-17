@@ -193,7 +193,7 @@ pub fn update_world<'w> (world: &'w mut World, actions: &Actions, dt: f64) -> &'
   }
 
   // Spawn enemies at random locations
-  if world.current_time - world.last_spawned_enemy > 1.0 {
+  if world.current_time - world.last_spawned_enemy > 2.0 {
       world.last_spawned_enemy = world.current_time;
       let mut new_enemy: Enemy;
       loop {
