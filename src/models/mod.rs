@@ -1,60 +1,46 @@
-/// A game entity, implements various components as traits
-}
-struct Entity;
+mod grid;
+mod player;
 
-/// A `Position` represents a position in space
-#[derive(Clone, Default)]
-pub struct Position {
-    pub x: f64,
-    pub y: f64
-}
+pub use self::grid::{Vector, Size, Radius};
+pub use self::player::{Player, PLAYER_POLYGON};
+use rand::{thread_rng, ThreadRng, Rng};
+use opengl_graphics::glyph_cache::GlyphCache;
 
-/// A `Size` represents a region in space
-#[derive(Clone, Default)]
-pub struct Size {
-    pub width: f64,
-    pub height: f64
-}
+const ENEMY_RADIUS: f64 = 10.0;
+const BULLET_RADIUS: f64 = 3.0;
 
-/// A `Vector`
-#[derive(Clone, Default)]
-pub struct Vector {
-    /// The position of the vector
-    pub position: Position,
-    /// The direction angle, in radians
-    pub direction: f64
-}
 
-/// The `Player` is the rocket controlled by the user
-#[derive(Default)]
-pub struct Player {
-    pub vector: Vector
-}
-
-impl Player {
-    pub fn new () -> Player {
-        Player {
-            vector: Vector {
-                position: Position {
-                    x: 50.0,
-                    y: 50.0
-                },
-                direction: 0.0
-            }
-        }
-    }
-}
-
-/// Enemies follow the player in order to cause a collision and let him explode
+/// Enemies follow the player in order to cause a collision and let her explode
 pub struct Enemy {
-    pub vector: Vector
+    pub radius: Radius,
+    pub vector: Vector,
+}
+
+impl Enemy {
+    /// Create an enemy with the given vector
+    pub fn new(vector: Vector) -> Enemy {
+        Enemy { vector: vector, radius: ENEMY_RADIUS }
+    }
+
+    /// Create a new `Enemy` with a random position and direction
+    pub fn random<R: Rng>(rng: &mut R, bounds: &Size) -> Enemy {
+        Enemy::new(Vector::random(rng, 0.0, bounds))
+    }
 }
 
 /// Bullets are spawned when the player shoots
 ///
 /// When an enemy is reached by a bullet, it will explode
 pub struct Bullet {
-    pub vector: Vector
+    pub radius: Radius,
+    pub vector: Vector,
+}
+
+impl Bullet {
+    /// Create a buller with the given vector
+    pub fn new(vector: Vector) -> Bullet {
+        Bullet { vector: vector, radius: BULLET_RADIUS }
+    }
 }
 
 /// A model representing a particle
@@ -64,7 +50,7 @@ pub struct Bullet {
 /// player or an enemy is killed
 pub struct Particle {
     pub vector: Vector,
-    pub ttl: f64
+    pub ttl: f64,
 }
 
 impl Particle {
@@ -74,35 +60,32 @@ impl Particle {
     }
 }
 
-/// Timers to handle creation of bullets, enemies and particles
-#[derive(Default)]
-pub struct Timers {
-    pub current_time: f64,
-    pub last_tail_particle: f64,
-    pub last_shoot: f64,
-    pub last_spawned_enemy: f64
-}
-
 /// A model that contains the other models and renders them
 pub struct World {
-    pub player: Player,
-    pub particles: Vec<Particle>,
     pub bullets: Vec<Bullet>,
+    pub current_time: f64,
     pub enemies: Vec<Enemy>,
+    pub last_spawned_enemy: f64,
+    pub particles: Vec<Particle>,
+    pub player: Player,
+    pub rng: ThreadRng,
     pub size: Size,
-    pub timers: Timers
 }
 
 impl World {
     /// Returns a new `World` of the given `Size`
     pub fn new(size: Size) -> World {
+        let mut rng = thread_rng();
+
         World {
-            player: Player::new(),
-            particles: vec![],
             bullets: vec![],
+            current_time: 0.0,
             enemies: vec![],
+            last_spawned_enemy: 0.0,
+            particles: vec![],
+            player: Player::random(&mut rng, &size),
+            rng: rng,
             size: size,
-            timers: Timers::default()
         }
     }
 }
@@ -110,25 +93,29 @@ impl World {
 /// Active actions (toggled by user input)
 #[derive(Default)]
 pub struct Actions {
+    pub boost: bool,
     pub rotate_left: bool,
     pub rotate_right: bool,
-    pub boost: bool,
-    pub shoot: bool
+    pub shoot: bool,
 }
 
+/// The game model keeps track of the world state and the actions state
 pub struct Game {
+    pub actions: Actions,
     pub world: World,
-    pub actions: Actions
 }
 
 impl Game {
     /// Returns a new `Game` containing a `World` of the given `Size` and a default action state
     pub fn new(size: Size) -> Game {
         Game {
+            actions: Actions::default(),
             world: World::new(size),
-            actions: Actions::default()
         }
     }
 }
 
-
+/// Additional resources needed for the game
+pub struct Resources {
+    pub font: GlyphCache<'static>
+}

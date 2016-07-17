@@ -2,6 +2,7 @@
 name = "reactive_rocket"
 version = "0.1.0"
 authors = ["jj <jj.weber@gmail.com>"]
+build = "build.rs"
 
 [dependencies]
 itertools = "0.4.13"
